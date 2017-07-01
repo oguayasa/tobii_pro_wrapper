@@ -960,27 +960,9 @@ def runCalibrationRoutine(eyeTracker, numCalibPoints):
     calibWin.close() 
     return
 
-
-
-# run calibration rountine for all points in list
-runCalibrationRoutine(myTracker, 5)
+# as an example, run 5 point calibration rountine
+numberPoints = 5
+runCalibrationRoutine(myTracker, numberPoints)
+# remember to shut off keyboard and mouse devices before re-running
 io.quit()
-
-##checkGazePos(myTracker)
-print "Damn I'm good"
-
-# i need to turn this into a class for using during my exp
-# also need to put in functionality for getting pupil size
-
-
-
-
-
-
-
-
-
-
-
-#TODO get control keys working, debug, test
 
