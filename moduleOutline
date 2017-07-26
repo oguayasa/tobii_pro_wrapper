@@ -1,0 +1,142 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# Psychopy supported Tobii controller for the new Pro SDK
+
+# Authors: Olivia Guayasamin
+# Date: 7/26/2017
+        
+# Requirements: Python 2.7 32 Bit (SDK required)
+# Tobii Pro SDK 1.0 or 1.1 for Python, and all dependencies
+# Psychopy, Psychopy.iohub, and all dependencies
+# numpy, scipy, and win32api
+
+# Summary: Currently provides all functionality for running a FULL CALIBRATION 
+# ROUTINE for 5 and 9 point calibrations, and converting between Tobii
+# Trackbox, Tobii ADA, and Psychopy coordinate systems. 
+
+# This code also contains functionality for finding/calibrating the 
+# experimental monitor, connecting to keyboard/mouse devices, selecting and 
+# connecting to a tobii device, getting tobii device parameters, and getting 
+# real time gaze and eye position data from the tobii tracker. 
+
+# Notes: This code is currently designed for working with a tobii eyetracker 
+# installed on the same device as the one for running experiments (laptop set-
+# up with a single connected eyetracker, no external monitors, and no tobii 
+# external processors). It should be straightforward to adapt to other 
+# computer/monitor set-ups, but adaptation is required. Created on Windows OS.
+# Not guaranteed. 
+
+# Please contact for questions. This will be updated as more functionality is
+# added. 
+
+# -----Import Required Libraries-----
+from win32api import GetSystemMetrics
+
+from psychopy import core, visual, gui, data, event
+from psychopy.iohub import launchHubServer
+
+import numpy as np
+from scipy.spatial import distance
+
+import tobii_research as tobii
+
+import random
+import collections
+
+
+# -----Class for working with Tobii Eyetrackers -----
+class TobiiCore:
+    def __init__(self):
+        self.monitor = None
+        
+        self.eyetracker = None
+        
+        self.gazedata = None
+        
+        self.eyedata = None
+        
+        self.eventdata = None
+          
+# ----- Functions for describing and controlling the eyetracker -----      
+
+    def findTracker:
+        
+        
+    def trackerCoordinates:
+          
+        
+    def gazeDataCallback:
+        
+    
+    def startGazeData:
+        
+        
+    def stopGazeData:
+        
+# ----- Helper functions -----
+
+    def launchMouse:
+        
+        
+    def launchKeyboard:
+
+        
+    def tb2Ada:
+        
+        
+    def tb2PsychoNorm:
+        
+        
+    def ada2PsychoPix:
+        
+    
+    def ada2MonPix:
+ 
+# ----- Functions for collecting eye and gaze data -----
+        
+    def getAvgGazePos:
+        
+        
+    def getEyePos:
+    
+        
+    def getPupilSize:
+        
+    
+    def checkEyeValidities:
+        
+# ----- Functions for running calibration -----
+        
+    def drawEyePositions:
+                
+        
+    def runValidation:
+        
+    
+    def calculateCalibration:
+        
+        
+    def drawCalibrationResults:
+        
+        
+    def runCalibrationProcedure:
+        
+        
+    def runTrackbox:
+        
+        
+    def runFullCalibration:
+ 
+# ----- Functions for working with gaze data files -----
+        
+    def startDataFile:
+        
+        
+    def save2DataFile:
+        
+        
+    def closeDataFile:
+        
+        
+        
