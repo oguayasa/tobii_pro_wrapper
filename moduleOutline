@@ -138,5 +138,5 @@ class TobiiCore:
         
     def closeDataFile:
         
-        
+ # ----- Example Code: Gaze-contingent window with Psychopy and PIL ----- #       
         
