@@ -1,6 +1,6 @@
-# PsychoTobii
+# tobii_pro_wrapper
 
-Helpful functions for working with with the new Tobii Pro SDK v 1.0 for Python, 
+TobiiHelper class and helpful functions for working with with the new Tobii Pro SDK v 1.0 for Python, 
 along with essential eye-tracking routines. 
 
 Currently provides all functionality for running a FULL CALIBRATION 
