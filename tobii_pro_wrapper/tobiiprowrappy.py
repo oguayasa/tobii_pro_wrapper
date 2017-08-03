@@ -68,9 +68,7 @@ class TobiiHelper:
         self.devices = None
         
         self.gazeData = {}
-        
-        self.syncData = {}
-        
+                
         self.currentOutData = {}
           
 # ----- Functions for initialzing the eyetracker and class attributes -----      
@@ -233,31 +231,6 @@ class TobiiHelper:
     
         
 # ----- Helper functions -----
-    # function for checking tracker and computer synchronization
-    def timeSyncCallback(self, timeSyncData):
-        self.syncData = timeSyncData
-    
-    
-    # broadcast synchronization data
-    def startSyncData(self):
-        #check that eyetracker is connected
-        if self.eyetracker is None:
-            raise ValueError('Eyetracker is not connected.')
-            
-        # if it is , proceed
-        print "Subscribing to time synchronization data"
-        self.eyetracker.subscribe_to(tobii.EYETRACKER_TIME_SYNCHRONIZATION_DATA,
-                                     self.timeSyncCallback,
-                                     as_dictionary=True)
-   
-     
-    # stop broadcasting synchronization data    
-    def stopSyncData(self):
-        self.eyetracker.unsubscribe_from(tobii.EYETRACKER_TIME_SYNCHRONIZATION_DATA,
-                                        self.timeSyncCallback)
-        print "Unsubscribed from time synchronization data."
-
-
     # Start psychopy ioHub processes for monitoring keyboard and mouse devices, 
     # devices will not be actively reporting unless later called to do so
     def launchDevices(self):
