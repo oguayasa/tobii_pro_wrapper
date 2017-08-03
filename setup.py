@@ -10,7 +10,7 @@ setup(
     url='https://github.com/oguayasa/tobii_pro_wrapper',
     license='LICENSE.txt',
     description='Wrapper for the new Tobii Pro SDK',
-    long_description=open('README.md').read(),
+    long_description='README.md',
     install_requires=[
         'numpy',
         'scipy',
