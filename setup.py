@@ -17,6 +17,6 @@ setup(
         'psychopy',
         'datetime',
         'pygtk',
-        '--user tobii_research==1.0.1.128',
+        'tobii_research==1.0.1.128',
     ],
 )
