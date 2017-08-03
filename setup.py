@@ -8,7 +8,7 @@ setup(
     author_email='oguayasa@gmail.com',
     packages=['tobii_pro_wrapper'],
     url='https://github.com/oguayasa/tobii_pro_wrapper',
-    license='LICENSE.txt',
+    license='LICENSE',
     description='Wrapper for the new Tobii Pro SDK',
     long_description=open('README.txt').read(),
     install_requires=[
