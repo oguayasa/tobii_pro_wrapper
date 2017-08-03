@@ -3,7 +3,7 @@
 # Psychopy supported Tobii controller for the new Pro SDK
 
 # Authors: Olivia Guayasamin
-# Date: 8/2/2017
+# Date: 7/26/2017
         
 # Requirements: Python 2.7 32 Bit (SDK required)
 # Tobii Pro SDK 1.0 or 1.1 for Python, and all dependencies
@@ -30,14 +30,18 @@
 # added. 
 
 # -----Import Required Libraries-----
-from win32api import GetSystemMetrics
+import gtk, pygtk
+
 from psychopy import core as pcore
 from psychopy import monitors, visual, gui, data, event
 from psychopy.iohub import launchHubServer
+
 import datetime as dt
 import numpy as np
 from scipy.spatial import distance
+
 import tobii_research as tobii
+
 import collections
 
 # -----Class for working with Tobii Eyetrackers -----
@@ -60,7 +64,9 @@ class TobiiHelper:
         self.devices = None
         
         self.gazeData = {}
-                
+        
+        self.syncData = {}
+        
         self.currentOutData = {}
           
 # ----- Functions for initialzing the eyetracker and class attributes -----      
@@ -157,7 +163,9 @@ class TobiiHelper:
         # if no dimensions given
         if dimensions is None:
             # use current screen dimensions
-            dimensions = (GetSystemMetrics(0), GetSystemMetrics(1))
+            thisWin = gtk.Window()
+            thisScreen = thisWin.get_screen()
+            dimensions = (thisScreen.get_width(), thisScreen.get_height())
         # if dimension not given as tuple
         elif not isinstance(dimensions, tuple):
             raise TypeError("Dimensions must be given as tuple.")
@@ -223,6 +231,31 @@ class TobiiHelper:
     
         
 # ----- Helper functions -----
+    # function for checking tracker and computer synchronization
+    def timeSyncCallback(self, timeSyncData):
+        self.syncData = timeSyncData
+    
+    
+    # broadcast synchronization data
+    def startSyncData(self):
+        #check that eyetracker is connected
+        if self.eyetracker is None:
+            raise ValueError('Eyetracker is not connected.')
+            
+        # if it is , proceed
+        print "Subscribing to time synchronization data"
+        self.eyetracker.subscribe_to(tobii.EYETRACKER_TIME_SYNCHRONIZATION_DATA,
+                                     self.timeSyncCallback,
+                                     as_dictionary=True)
+   
+     
+    # stop broadcasting synchronization data    
+    def stopSyncData(self):
+        self.eyetracker.unsubscribe_from(tobii.EYETRACKER_TIME_SYNCHRONIZATION_DATA,
+                                        self.timeSyncCallback)
+        print "Unsubscribed from time synchronization data."
+
+
     # Start psychopy ioHub processes for monitoring keyboard and mouse devices, 
     # devices will not be actively reporting unless later called to do so
     def launchDevices(self):
@@ -1403,3 +1436,37 @@ class TobiiHelper:
         
         return self.currentData
   
+    
+# Example to full calibration routine
+## import wrapper
+# import tobii_pro_wrapper as tpw
+
+## create tobii helper object
+#foo = tpw.TobiiHelper()
+## specify the monitor for psychopy
+#foo.setMonitor()
+## use the tobii helper to find the eyetracker
+#foo.findTracker()
+## get tracker dimensions(trackbox and active display area)
+#foo.getTrackerSpace()
+## lauch psychopy iohub keyboard to control progress through calibration
+#keyboard = foo.launchDevices()
+## run a full five point calibration routine, with trackbox, calibration
+## results, and a validation routine
+#foo.runFullCalibration(5)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
