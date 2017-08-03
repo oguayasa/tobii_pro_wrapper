@@ -1,9 +1,11 @@
+#!/usr/bin/env python
+
 # -*- coding: utf-8 -*-
 
 # Psychopy supported Tobii controller for the new Pro SDK
 
 # Authors: Olivia Guayasamin
-# Date: 7/26/2017
+# Date: 8/3/2017
         
 # Requirements: Python 2.7 32 Bit (SDK required)
 # Tobii Pro SDK 1.0 or 1.1 for Python, and all dependencies
@@ -60,9 +62,7 @@ class TobiiHelper:
         self.tracking = False
         
         self.win = None
-        
-        self.devices = None
-        
+                
         self.gazeData = {}
         
         self.syncData = {}
@@ -254,48 +254,7 @@ class TobiiHelper:
         self.eyetracker.unsubscribe_from(tobii.EYETRACKER_TIME_SYNCHRONIZATION_DATA,
                                         self.timeSyncCallback)
         print "Unsubscribed from time synchronization data."
-
-
-    # Start psychopy ioHub processes for monitoring keyboard and mouse devices, 
-    # devices will not be actively reporting unless later called to do so
-    def launchDevices(self):
-        # start io hub process and create object to control process and devices
-        self.devices = launchHubServer()
-        # create psychopy keybaord and mouse devices
-        keyboard = self.devices.devices.keyboard
-        # mouse = self.devices.devices.mouse
-
-        # check that devices are connected
-        # keyboard
-        if self.devices.getDevice('keyboard') is None:
-            print ("Keyboard is not connected")
-        else: 
-            print("Keyboard is connected")
-
-        # mouse
-        #if self.devices.getDevice('mouse') is None:
-        #    print ("Mouse is not connected")
-        #else: 
-        #    print("Mouse is connected")
-
-        # make sure they are not reporting until called to do so
-        keyboard.reporting = False
-        #mouse.reporting = False
-        return keyboard
-    
-    
-    # quick function for turning off keyboard and mouse devices
-    def quitDevices(self):
-        # stop devices
-        self.devices.shutdown()
-        
-        # check that shutdown was successful
-        if self.devices.getActiveConnection() is None:
-            print ("Devices are no longer connected.")
-        else:
-            print ("Devices were not succesfully disconnected.")
-        
-        
+  
     # function for converting positions from trackbox coordinate system (mm) to 
     # normalized active display area coordinates   
     def tb2Ada(self, xyCoor = tuple):
@@ -603,10 +562,7 @@ class TobiiHelper:
         if psychoWin is None:
             raise ValueError("There is no psychopy window available. " +\
                              "Try calling runTrackbox() instead.")
-        # check devices
-        if self.devices is None:
-            raise ValueError('There is no keyboard object. \n' +\
-                             'Try running launchDevices().')
+
         # Set default colors
         correctColor = [-1.0, 1.0, -1.0]   
         mediumColor = [1.0, 1.0, 0.0]
@@ -639,9 +595,6 @@ class TobiiHelper:
                                   pos = [0.0, -0.65],
                                   height = 0.07)
 
-        # turn keyboard recording on
-        keyboard.reporting = True
-    
         # while tracking 
         while True:         
             # find and update eye positions
@@ -684,26 +637,20 @@ class TobiiHelper:
             findmsg.draw()
             psychoWin.flip()
             
-            # get response to advance or abort from running track box, or continue
-            # with calibration
-            for events in keyboard.getEvents():
-                # check to quit  
-                # depending on response, either abort script or continue to calibration
-                if events.key in ['q']:
-                    self.stopGazeData()
-                    psychoWin.close()
-                    self.quitDevices()
-                    pcore.quit()
-                    raise KeyboardInterrupt("You aborted the script manually.")
-                elif events.key in ['c']:
-                    print("Proceeding to calibration.")
-                    keyboard.reporting  = False
-                    self.stopGazeData()
-                    psychoWin.flip()
-                    return 
+            # depending on response, either abort script or continue to calibration
+            if event.getKeys(keyList=['q']):
+                self.stopGazeData()
+                psychoWin.close()
+                pcore.quit()
+                raise KeyboardInterrupt("You aborted the script manually.")
+            elif event.getKeys(keyList=['c']):
+                print("Proceeding to calibration.")
+                self.stopGazeData()
+                psychoWin.flip()
+                return 
         
             # clear events not accessed this iteration
-            self.devices.clearEvents()
+            event.clearEvents(eventType='keyboard')
 
 
     # function for running validation routine post calibration to check 
@@ -712,14 +659,13 @@ class TobiiHelper:
         
         # check the values of the point dictionary
         if pointDict is None: 
-            raise ValueError('pointDict has no value.')
+            print('pointDict has no value. Using 5 point default.')
+            pointList = [('1',(0.1, 0.1)), ('2',(0.9, 0.1)), ('3',(0.5, 0.5)), 
+                         ('4',(0.1, 0.9)), ('5',(0.9, 0.9))]
+            pointDict = collections.OrderedDict(pointList)
         if not isinstance(pointDict, dict):
             raise TypeError('pointDict must be a dictionary with number ' +\
                             'keys and coordinate values.')
-        # check devices
-        if self.devices is None:
-            raise ValueError('There is no keyboard object. \n' +\
-                             'Try running launchDevices().')
         # check window attribute
         if self.win is None:
             raise ValueError('No experimental monitor has been specified.\n' +\
@@ -765,10 +711,7 @@ class TobiiHelper:
                                   radius = 20, 
                                   lineColor = [1.0, -1.0, -1.0],  # red
                                   fillColor = [1.0, -1.0, -1.0])  # red
-        
-        # turn on keyboard reporting
-        keyboard.reporting = True
-            
+         
         # create array for smoothing gaze position
         gazePositions = np.array([0.0, 0.0])
         maxLength = 6
@@ -800,26 +743,21 @@ class TobiiHelper:
             # text
             valMsg.draw()
             valWin.flip()
-            
-            # get response to quit running validation box
-            for events in keyboard.getEvents():
-                # depending on response, either abort script or return to check
-                # calibration
-                if events.key in ['q']:
-                    valWin.close()
-                    self.stopGazeData()
-                    self.quitDevices()
-                    pcore.quit()
-                    raise KeyboardInterrupt("You aborted the script manually.")
-                elif events.key in ['c']:
-                    valWin.close()
-                    print ("Exiting calibration validation.")
-                    keyboard.reporting = False  # stop recoring keys
-                    self.stopGazeData()
-                    return
-                    
+                       
+            # depending on response, either abort script or continue to calibration
+            if event.getKeys(keyList=['q']):
+                valWin.close()
+                self.stopGazeData()
+                pcore.quit()
+                raise KeyboardInterrupt("You aborted the script manually.")
+            elif event.getKeys(keyList=['c']):
+                valWin.close()
+                print ("Exiting calibration validation.")
+                self.stopGazeData()
+                return
+                
             # clear events not accessed this iteration
-            self.devices.clearEvents()
+            event.clearEvents(eventType='keyboard')   
     
             
     # function for getting the average left and right gaze position coordinates
@@ -886,11 +824,7 @@ class TobiiHelper:
         # check value of calibration window
         if calibWin is None:
             raise ValueError('No psychopy window object given.')     
-        # check devices
-        if self.devices is None:
-            raise ValueError('There is no keyboard object. \n' +\
-                             'Try running launchDevices().')
-        
+
         # get gaze position results
         points2Draw = self.calculateCalibration(calibResult)
         
@@ -932,10 +866,7 @@ class TobiiHelper:
                                    units = 'norm',
                                    pos = [0.0, -0.5],
                                    height = 0.07)
-    
-        # turn on keyboard reporting
-        keyboard.reporting = True
-        
+
         # make empty dictionary for holding points to be recalibrated
         holdRedoDict = []
         holdColorPoints = []
@@ -984,51 +915,50 @@ class TobiiHelper:
             # show points and lines on window         
             calibWin.flip()
             
-            # get keyboard responses        
-            for events in keyboard.getEvents():
-                # depending on response, either...
-                # abort script
-                if events.key in ['q']:
+            # determine problem points
+            # if the key character matches any point in dictionary key list
+            pressedKeys = event.getKeys()
+
+            # depending on response, either...
+            # abort script
+            for key in pressedKeys:
+                if key in ['q']:
                     calibWin.close()
                     self.calibration.leave_calibration_mode()
-                    self.devices.shutdown()
                     pcore.quit()
                     raise KeyboardInterrupt("You aborted the script manually.")
-                # continue with calibration
-                elif events.key in ['c']:
+                    # continue with calibration
+                elif key in ['c']:
                     print ("Finished checking. Resuming calibration.")
                     checkMsg.pos = (0.0, 0.0)
                     checkMsg.text = ("Finished checking. Resuming calibration.")
                     checkMsg.draw()
                     calibWin.flip() 
-                    # turn off keyboard
-                    keyboard.reporting = False
-        
+    
                     # return dictionary of points to be recalibration
                     redoDict = collections.OrderedDict([])  # empty dictionary for holding unique values
                     # dont put repeats in resulting dictionary
                     tempDict = collections.OrderedDict(holdRedoDict)
-                    for key in tempDict.keys():
-                        if key not in redoDict.keys():
-                            redoDict[key] = tempDict.get(key)
-        
+                    for keys in tempDict.keys():
+                        if keys not in redoDict.keys():
+                            redoDict[keys] = tempDict.get(keys)
+    
                     # return dictionary
                     return redoDict
                 
-                # determine problem points
-                # if the key character matches any point in dictionary key list
-                elif events.key in curDict.keys():
+                # else if calibration position is pressed
+                elif key in curDict.keys():
                     # iterate through each of these presses
                     for entry in curDict.items():
                         # if the key press is the same as the current dictionary key
-                        if entry[0] == events.key:
+                        if entry[0] == key:
                             # append that dictionary entry into a holding dictionary
                             holdRedoDict.append(entry)
                             # append integer version to a holding list  
-                            holdColorPoints.append(int(events.key))
-                                 
+                            holdColorPoints.append(int(key))
+                        
             # clear events not accessed this iteration
-            self.devices.clearEvents()
+            event.clearEvents(eventType='keyboard')
 
 
     # function for drawing calibration points, collecting and applying 
@@ -1047,12 +977,7 @@ class TobiiHelper:
             raise ValueError('No list object given for pointList.')
         elif not isinstance(pointList, list):
             raise TypeError('pointList must be a list of coordinate tuples.')
-        # check devices
-        if self.devices is None:
-            raise ValueError('There is no keyboard or object. \n' +\
-                             'Try running launchDevices().')
-        
-  
+
         # convert calibration points to psychopy window coordinates
         calibPsychoCoor = [self.ada2PsychoPix((x[0], 
                                                x[1])) for x in pointList] 
@@ -1069,10 +994,7 @@ class TobiiHelper:
                                    lineColor = [1.0, -1.0, -1.0],  # red
                                    fillColor = [1.0, -1.0, -1.0],
                                    units = 'pix')
-         
-        # turn on keyboard
-        keyboard.reporting = True
-    
+
         # draw animation for each point
         # converting psychopy window coordinate units from normal to px
         for i in range(len(pointList)):    
@@ -1135,25 +1057,20 @@ class TobiiHelper:
                 calibWin.flip()      
             # let the eyes settle and move to the next point 
             pcore.wait(0.2)      
-            
-            # if escape key was pressed, abort
-            for events in keyboard.getEvents():
-                # check to quit  
-                # depending on response, either abort script or continue to calibration
-                if events.key in ['q']:
-                    calibWin.close()
-                    self.calibration.leave_calibration_mode()
-                    self.quitDevices()
-                    raise KeyboardInterrupt("You aborted the script manually.")
-                    return
+              
+            # check to quit  
+            # depending on response, either abort script or continue to calibration
+            if event.getKeys(keyList=['q']):
+                calibWin.close()
+                self.calibration.leave_calibration_mode()
+                raise KeyboardInterrupt("You aborted the script manually.")
+                return
                 
             # clear events not accessed this iteration
-            self.devices.clearEvents()
+            event.clearEvents(eventType='keyboard')
         
         # clear screen
         calibWin.flip()   
-        # turn off keyboard
-        keyboard.reporting = False
         # print feedback
         print "Computing and applying calibration."
         # compute and apply calibration to get calibration result object    
@@ -1170,10 +1087,6 @@ class TobiiHelper:
         if self.eyetracker is None:
             raise ValueError('There is no eyetracker object. \n' +\
                              'Try running findTracker().')
-        # check that devices are turned on
-        if self.devices is None:
-            raise ValueError('There is no keyboard or object. \n' +\
-                             'Try running launchDevices().')
         # check window attribute
         if self.win is None:
             raise ValueError('No experimental monitor has been specified.\n' +\
@@ -1211,10 +1124,6 @@ class TobiiHelper:
             raise ValueError("No eyetracker is specified. " +\
                              "Aborting calibration.\n" +\
                              "Try running findTracker().")
-        # check that devices have been launched   
-        if self.devices is None:
-            raise ValueError('There are no keyboard or objects. \n' +\
-                             'Try running launchDevices().')
         # check window attribute
         if self.win is None:
             raise ValueError('No experimental monitor has been specified.\n' +\
@@ -1270,8 +1179,7 @@ class TobiiHelper:
         calibMessage.draw()
         calibWin.flip() 
         # turn keyboard reporting on and get subject response
-        keyboard.reporting = True
-        keyboard.waitForKeys(maxWait = 10, keys = ['c'])  # proceed with calibration
+        event.waitKeys(maxWait = 10, keyList = ['c'])  # proceed with calibration
     
         #run track box routine
         calibWin.flip()   # clear previous text
@@ -1289,15 +1197,12 @@ class TobiiHelper:
         calibWin.flip()   
             
         # turn keyboard reporting on and get subject response
-        keyboard.reporting = True
-        keyboard.waitForKeys(maxWait = 10, keys = ['c'])  # proceed with calibration
+        event.waitKeys(maxWait = 10, keyList = ['c'])  # proceed with calibration
     
         # draw a fixation cross
         fixCross.draw()
         calibWin.flip()
         pcore.wait(3)
-        # turn off keyboard
-        keyboard.reporting = False
         
         # create dictionary for holding points to be recalibrated
         redoCalDict = calibDict
@@ -1391,7 +1296,6 @@ class TobiiHelper:
         calibWin.flip()
         pcore.wait(3)
         calibWin.close() 
-        self.quitDevices()
         return
      
 # ----- Functions for exporting gaze data  -----
@@ -1449,8 +1353,6 @@ class TobiiHelper:
 #foo.findTracker()
 ## get tracker dimensions(trackbox and active display area)
 #foo.getTrackerSpace()
-## lauch psychopy iohub keyboard to control progress through calibration
-#keyboard = foo.launchDevices()
 ## run a full five point calibration routine, with trackbox, calibration
 ## results, and a validation routine
 #foo.runFullCalibration(5)
