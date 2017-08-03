@@ -31,19 +31,13 @@
 
 # -----Import Required Libraries-----
 from win32api import GetSystemMetrics
-
-
 from psychopy import core as pcore
 from psychopy import monitors, visual, gui, data, event
 from psychopy.iohub import launchHubServer
-
 import datetime as dt
 import numpy as np
 from scipy.spatial import distance
-
 import tobii_research as tobii
-
-import random
 import collections
 
 # -----Class for working with Tobii Eyetrackers -----
@@ -1208,7 +1202,7 @@ class TobiiHelper:
                          ('7',(0.1, 0.9)), ('8',(0.5, 0.9)), ('9',(0.9, 0.9))]
             
         # randomize points as ordered dictionary 
-        random.shuffle(pointList)
+        np.random.shuffle(pointList)
         calibDict = collections.OrderedDict(pointList)
     
         # create window for calibration
