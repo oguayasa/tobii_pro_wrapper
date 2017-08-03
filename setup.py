@@ -16,7 +16,6 @@ setup(
         'scipy',
         'psychopy',
         'datetime',
-        'collections',
         'win32api',
         'tobii_research',
     ],
