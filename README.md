@@ -15,8 +15,8 @@ Running tobii_pro_wrapper requires all of the following and their dependencies.
 * [Python 2.7](https://www.continuum.io/downloads)
 * [Tobii Pro SDK v1.0](https://www.tobiipro.com/product-listing/tobii-pro-sdk/#Download) for Python 
 
-The Tobii Pro SDK v1.1 currently has bugs that prevent some eyetracker models from calibrating. Once 
-this is fixed, tobii_pro_wrapper will be updated to work with the newer SDK releases. So to 
+At the time of this writing, Tobii Pro SDK v1.1 has bugs that prevent some eyetracker models from calibrating. Once 
+this is fixed (I'll keep checking), tobii_pro_wrapper will be updated to work with the newer SDK releases. So to 
 download the previous version, use:
 
 ```
