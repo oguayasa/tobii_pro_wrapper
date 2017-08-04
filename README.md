@@ -35,12 +35,17 @@ See tobii_pro_wrapper.py for more details.
 Example to find eyetracker, calibrate tracker coordinates and experimental monitor, 
 and run a full 5-point calibration routine:
 
+
 import tobii_pro_wrapper as tpw
 
 foo = tpw.TobiiHelper()
+
 foo.setMonitor()
+
 foo.findTracker()
-foo.getTrackerSpace()
+
+foo.getTrackerSpace
+
 foo.runFullCalibration(5)
 
 
