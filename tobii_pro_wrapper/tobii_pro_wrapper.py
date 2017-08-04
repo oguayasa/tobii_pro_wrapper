@@ -8,7 +8,7 @@
 # Date: 8/3/2017
         
 # Requirements: Python 2.7 32 Bit (SDK required)
-# Tobii Pro SDK 1.0 or 1.1 for Python, and all dependencies
+# Tobii Pro SDK 1.0 for Python, and all dependencies
 # Psychopy, Psychopy.iohub, and all dependencies
 # numpy, scipy, and win32api
 
@@ -963,7 +963,7 @@ class TobiiHelper:
 
     # function for drawing calibration points, collecting and applying 
     # calibration data
-    def runCalibrationProcedure(self, calibWin, pointList = list):
+    def getCalibrationData(self, calibWin, pointList = list):
         
         # check argument values
         if self.calibration is None:
@@ -1214,7 +1214,7 @@ class TobiiHelper:
             pointOrder = redoCalDict.values()
             
             # perform calibration 
-            calibResult = self.runCalibrationProcedure(calibWin, pointOrder)
+            calibResult = self.getCalibrationData(calibWin, pointOrder)
     
             # Check status of calibration result
             # if calibration was successful, check calibration results
