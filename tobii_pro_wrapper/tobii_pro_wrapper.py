@@ -328,8 +328,8 @@ class TobiiHelper:
         monHW = (self.win.getSizePix()[0], 
                  self.win.getSizePix()[1])
         wShift, hShift = monHW[0] / 2 , monHW[1] / 2
-        psychoPix = (((xyCoor[0]* monHW[0]) - wShift), 
-                     ((xyCoor[1] * monHW[1]) - hShift) * -1)
+        psychoPix = (int(((xyCoor[0]* monHW[0]) - wShift)), 
+                     int(((xyCoor[1] * monHW[1]) - hShift) * -1))
         # return coordinates in psychowin 'pix' units
         return psychoPix
 
@@ -348,8 +348,8 @@ class TobiiHelper:
             raise ValueError("Wrong number of coordinate dimensions")
 
         # convert so point of gaze on monitor is accurate
-        monPix = (xyCoor[0] * self.win.getSizePix()[0],
-                  xyCoor[1] * self.win.getSizePix()[1])                                
+        monPix = (int(xyCoor[0] * self.win.getSizePix()[0]),
+                  int(xyCoor[1] * self.win.getSizePix()[1]))                                
         return monPix        
     
         
@@ -381,8 +381,7 @@ class TobiiHelper:
                 avgGazePos = np.nanmean(xs), np.nanmean(ys)
             else:
                 # or if no data, hide points by showing off screen
-                avgGazePos = (self.win.getSizePix()[0], 
-                           self.win.getSizePix()[1])
+                avgGazePos = (np.nan, np.nan)
             return avgGazePos
 
                 
