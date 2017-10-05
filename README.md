@@ -1,11 +1,15 @@
 # tobii_pro_wrapper
 
-Contains functions for working with with the new Tobii Pro SDK v1.0 for Python, 
+Contains functions for working with with the new Tobii Pro SDK v1.0.1 for Python, 
 along with essential eye-tracking routines, in a TobiiHelper class.
 
 Pretty much everything you need to connect to a Tobii eyetracker, calibrate the eyetracker,
 get gaze, eye, and time synchronization data from the eyetracker device, and convert the confusing Tobii
 coordinate systems units to units that are psychopy and interpretation friendly.
+
+If you end up using this code in your work, please cite: 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1002691.svg)](https://doi.org/10.5281/zenodo.1002691)
+
 
 ## Getting Started
 
