@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # -*- coding: utf-8 -*-
 
 # Psychopy supported Tobii controller for the new Pro SDK
@@ -323,6 +321,10 @@ class TobiiHelper:
             raise TypeError("XY coordinates must be given as tuple.")
         elif isinstance(xyCoor, tuple) and len(xyCoor) is not 2: 
             raise ValueError("Wrong number of coordinate dimensions")
+            
+        if np.isnan(xyCoor[0]) and np.isnan(xyCoor[1]):
+            psychoPix = (np.nan, np.nan)
+            return psychoPix
 
         # convert to pixels and correct for psychopy window coordinates
         monHW = (self.win.getSizePix()[0], 
@@ -346,6 +348,10 @@ class TobiiHelper:
             raise TypeError("XY coordinates must be given as tuple.")
         elif isinstance(xyCoor, tuple) and len(xyCoor) is not 2: 
             raise ValueError("Wrong number of coordinate dimensions")
+
+        if np.isnan(xyCoor[0]) and np.isnan(xyCoor[1]):
+            monPix = (np.nan, np.nan)
+            return monPix
 
         # convert so point of gaze on monitor is accurate
         monPix = (int(xyCoor[0] * self.win.getSizePix()[0]),
@@ -376,7 +382,7 @@ class TobiiHelper:
             ys = (lGazeXYZ[1], rGazeXYZ[1])   
             
             # if all of the axes have data from at least one eye
-            if not (np.isnan(xs)).all() or not (np.isnan(ys)).all():
+            if all([x != -1.0 for x in xs]) and all([y != -1.0 for y in ys]):
                 # take x and y averages
                 avgGazePos = np.nanmean(xs), np.nanmean(ys)
             else:
@@ -692,14 +698,14 @@ class TobiiHelper:
                                color = [0.8, 0.8, 0.8])  
         # stimuli for showing point of gaze
         gazeStim = visual.Circle(valWin, 
-                                 radius = 80,
+                                 radius = 50,
                                  lineColor = [1.0, 0.95, 0.0],  # yellow circle
                                  fillColor = [1.0, 1.0, 0.55],  # light interior
                                  lineWidth = 40,
                                  units = 'pix')
         # Make a dummy message
         valMsg = visual.TextStim(valWin,
-                                 text = "Press 'c' when finished.",
+                                 text = 'Wait for the experimenter.',
                                  color = [0.4, 0.4, 0.4],  # grey
                                  units = 'norm',
                                  pos = [0.0, -0.5],
@@ -830,9 +836,9 @@ class TobiiHelper:
         # create stimuli objects for drawing
         # outlined empty circle object for showing calibration point
         calibPoint = visual.Circle(calibWin, 
-                                   radius = 100,
+                                   radius = 50,
                                    lineColor = [1.0, 1.0, 1.0],  # white
-                                   lineWidth = 20,
+                                   lineWidth = 10,
                                    fillColor = calibWin.color,
                                    units = 'pix',
                                    pos = (0.0, 0.0))  
@@ -840,14 +846,14 @@ class TobiiHelper:
         rightEyeLine = visual.Line(calibWin, 
                                    units ='pix',
                                    lineColor ='red',
-                                   lineWidth = 30,
+                                   lineWidth = 20,
                                    start = (0.0, 0.0),
                                    end = (0.0, 0.0))                              
         # line object for showing left eye gaze position during calibration                          
         leftEyeLine = visual.Line(calibWin, 
                                   units ='pix',
                                   lineColor ='yellow',
-                                  lineWidth = 30,
+                                  lineWidth = 20,
                                   start = (0.0, 0.0),
                                   end = (0.0, 0.0))
         # number for identifying point in dictionary
@@ -856,11 +862,10 @@ class TobiiHelper:
                                     color = [0.8, 0.8, 0.8],  # lighter than bkg
                                     units = 'pix',
                                     pos = [0.0, 0.0],
-                                    height = 120)
+                                    height = 60)
             # Make a dummy message
         checkMsg = visual.TextStim(calibWin,
-                                   text = ("      Press 'q' to abort, or" + \
-                                           "\n'c' to continue with calibration."),
+                                   text = 'Wait for the experimenter.',
                                    color = [1.0, 1.0, 1.0],
                                    units = 'norm',
                                    pos = [0.0, -0.5],
@@ -869,7 +874,10 @@ class TobiiHelper:
         # make empty dictionary for holding points to be recalibrated
         holdRedoDict = []
         holdColorPoints = []
-       
+        
+        # clear events not accessed this iteration
+        event.clearEvents(eventType='keyboard')   
+    
         # draw and update screen
         while True: 
           
@@ -916,7 +924,8 @@ class TobiiHelper:
             
             # determine problem points
             # if the key character matches any point in dictionary key list
-            pressedKeys = event.getKeys()
+            pressedKeys = event.getKeys(keyList = ['c', 'q', '1', '2', '3', '4',
+                                                   '5', '6', '7', '8', '9'])
 
             # depending on response, either...
             # abort script
@@ -977,15 +986,11 @@ class TobiiHelper:
         elif not isinstance(pointList, list):
             raise TypeError('pointList must be a list of coordinate tuples.')
 
-        # convert calibration points to psychopy window coordinates
-        calibPsychoCoor = [self.ada2PsychoPix((x[0], 
-                                               x[1])) for x in pointList] 
-        
-         # defaults
-        pointSmallRadius = 10.0  # point radius
+        # defaults
+        pointSmallRadius = 5.0  # point radius
         pointLargeRadius = pointSmallRadius * 10.0  
-        moveFrames = 60  # number of frames to draw between points
-        startPoint = self.ada2PsychoPix((0.95, 0.95)) # starter point for animation    
+        moveFrames = 50 # number of frames to draw between points
+        startPoint = (0.90, 0.90) # starter point for animation    
     
         # calibraiton point visual object
         calibPoint = visual.Circle(calibWin, 
@@ -1000,23 +1005,23 @@ class TobiiHelper:
             
             # if first point draw starting point
             if i == 0:
-                firstPoint = [startPoint[0], startPoint[0]]
-                secondPoint = [calibPsychoCoor[i][0], calibPsychoCoor[i][1]]
+                firstPoint = [startPoint[0], startPoint[1]]
+                secondPoint = [pointList[i][0], pointList[i][1]]
             else:
-                firstPoint = [calibPsychoCoor[i - 1][0], calibPsychoCoor[i - 1][1]]
-                secondPoint = [calibPsychoCoor[i][0], calibPsychoCoor[i][1]]
-                    
+                firstPoint = [pointList[i - 1][0], pointList[i - 1][1]]
+                secondPoint = [pointList[i][0], pointList[i][1]]
+                   
             # draw and move dot
             # step size for dot movement is new - old divided by frames
             pointStep = [((secondPoint[0] - firstPoint[0]) / moveFrames), 
                          ((secondPoint[1] - firstPoint[1]) / moveFrames)]
             
             # Move the point in position (smooth pursuit)
-            for frame in range(moveFrames):
+            for frame in range(moveFrames - 1):
                 firstPoint[0] += pointStep[0]
                 firstPoint[1] += pointStep[1]
                 # draw & flip
-                calibPoint.pos = tuple(firstPoint)
+                calibPoint.pos = self.ada2PsychoPix(tuple(firstPoint))
                 calibPoint.draw()
                 calibWin.flip()          
             # wait to let eyes settle    
@@ -1339,26 +1344,6 @@ class TobiiHelper:
         
         return self.currentData
   
-    
-# Example to full calibration routine
-## import wrapper
-# import tobii_pro_wrapper as tpw
-
-## create tobii helper object
-#foo = tpw.TobiiHelper()
-## specify the monitor for psychopy
-#foo.setMonitor()
-## use the tobii helper to find the eyetracker
-#foo.findTracker()
-## get tracker dimensions(trackbox and active display area)
-#foo.getTrackerSpace()
-## run a full five point calibration routine, with trackbox, calibration
-## results, and a validation routine
-#foo.runFullCalibration(5)
-
-
-
-
 
 
 
