@@ -923,7 +923,7 @@ class TobiiHelper:
             calibWin.flip()
             
             # determine problem points
-            # if the key character matches any point in dictionary key list
+            # list of acceptable key input !!IF PRESSED KEYS ARE NOT IN KEYLIST, KEYBOARD EVENT MAY CRASH!!
             pressedKeys = event.getKeys(keyList = ['c', 'q', '1', '2', '3', '4',
                                                    '5', '6', '7', '8', '9'])
 
@@ -935,7 +935,19 @@ class TobiiHelper:
                     self.calibration.leave_calibration_mode()
                     pcore.quit()
                     raise KeyboardInterrupt("You aborted the script manually.")
-                    # continue with calibration
+                
+                # else if recalibration point is requested
+                elif key in curDict.keys():
+                    # iterate through each of these presses
+                    for entry in curDict.items():
+                        # if the key press is the same as the current dictionary key
+                        if entry[0] == key:
+                            # append that dictionary entry into a holding dictionary
+                            holdRedoDict.append(entry)
+                            # append integer version to a holding list  
+                            holdColorPoints.append(int(key))
+                                
+                # continue with calibration procedure           
                 elif key in ['c']:
                     print ("Finished checking. Resuming calibration.")
                     checkMsg.pos = (0.0, 0.0)
@@ -953,17 +965,6 @@ class TobiiHelper:
     
                     # return dictionary
                     return redoDict
-                
-                # else if calibration position is pressed
-                elif key in curDict.keys():
-                    # iterate through each of these presses
-                    for entry in curDict.items():
-                        # if the key press is the same as the current dictionary key
-                        if entry[0] == key:
-                            # append that dictionary entry into a holding dictionary
-                            holdRedoDict.append(entry)
-                            # append integer version to a holding list  
-                            holdColorPoints.append(int(key))
                         
             # clear events not accessed this iteration
             event.clearEvents(eventType='keyboard')
