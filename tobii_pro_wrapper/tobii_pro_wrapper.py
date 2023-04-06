@@ -30,7 +30,8 @@
 # added. 
 
 # -----Import Required Libraries-----
-import gtk, pygtk
+from gi.repository import Gtk
+#import Gtk, pygtk
 
 from psychopy import core as pcore
 from psychopy import monitors, visual, gui, data, event
@@ -161,7 +162,7 @@ class TobiiHelper:
         # if no dimensions given
         if dimensions is None:
             # use current screen dimensions
-            thisWin = gtk.Window()
+            thisWin = Gtk.Window()
             thisScreen = thisWin.get_screen()
             dimensions = (thisScreen.get_width(), thisScreen.get_height())
         # if dimension not given as tuple
@@ -208,7 +209,7 @@ class TobiiHelper:
             raise ValueError("There is no eyetracker.")
         
         # if it is, proceed
-        print "Subscribing to eyetracker."
+        print("Subscribing to eyetracker.")
         self.eyetracker.subscribe_to(tobii.EYETRACKER_GAZE_DATA, 
                                      self.gazeDataCallback, 
                                      as_dictionary = True)
@@ -222,7 +223,7 @@ class TobiiHelper:
         if self.eyetracker is None:
             raise ValueError("There is no eyetracker.")
         # if it is, proceed
-        print "Unsubscribing from eyetracker"
+        print("Unsubscribing from eyetracker")
         self.eyetracker.unsubscribe_from(tobii.EYETRACKER_GAZE_DATA, 
                                          self.gazeDataCallback)
         self.tracking = False
@@ -241,7 +242,7 @@ class TobiiHelper:
             raise ValueError('Eyetracker is not connected.')
             
         # if it is , proceed
-        print "Subscribing to time synchronization data"
+        print("Subscribing to time synchronization data")
         self.eyetracker.subscribe_to(tobii.EYETRACKER_TIME_SYNCHRONIZATION_DATA,
                                      self.timeSyncCallback,
                                      as_dictionary=True)
@@ -251,7 +252,7 @@ class TobiiHelper:
     def stopSyncData(self):
         self.eyetracker.unsubscribe_from(tobii.EYETRACKER_TIME_SYNCHRONIZATION_DATA,
                                         self.timeSyncCallback)
-        print "Unsubscribed from time synchronization data."
+        print("Unsubscribed from time synchronization data.")
   
     # function for converting positions from trackbox coordinate system (mm) to 
     # normalized active display area coordinates   
@@ -262,7 +263,7 @@ class TobiiHelper:
             raise ValueError("No coordinate values have been specified.")
         elif not isinstance(xyCoor, tuple):
             raise TypeError("XY coordinates must be given as tuple.")
-        elif isinstance(xyCoor, tuple) and len(xyCoor) is not 2: 
+        elif isinstance(xyCoor, tuple) and len(xyCoor) != 2: 
             raise ValueError("Wrong number of coordinate dimensions")
         # check tracker box and ada coordinates
         if self.tbCoordinates is None or self.adaCoordinates is None:
@@ -295,7 +296,7 @@ class TobiiHelper:
             raise ValueError("No coordinate values have been specified.")
         elif not isinstance(xyCoor, tuple):
             raise TypeError("XY coordinates must be given as tuple.")
-        elif isinstance(xyCoor, tuple) and len(xyCoor) is not 2: 
+        elif isinstance(xyCoor, tuple) and len(xyCoor) != 2: 
             raise ValueError("Wrong number of coordinate dimensions")
 
         # convert track box coordinates to adac coordinates
@@ -319,7 +320,7 @@ class TobiiHelper:
             raise ValueError("No coordinate values have been specified.")
         elif not isinstance(xyCoor, tuple):
             raise TypeError("XY coordinates must be given as tuple.")
-        elif isinstance(xyCoor, tuple) and len(xyCoor) is not 2: 
+        elif isinstance(xyCoor, tuple) and len(xyCoor) != 2: 
             raise ValueError("Wrong number of coordinate dimensions")
             
         if np.isnan(xyCoor[0]) and np.isnan(xyCoor[1]):
@@ -346,7 +347,7 @@ class TobiiHelper:
             raise ValueError("No coordinate values have been specified.")
         elif not isinstance(xyCoor, tuple):
             raise TypeError("XY coordinates must be given as tuple.")
-        elif isinstance(xyCoor, tuple) and len(xyCoor) is not 2: 
+        elif isinstance(xyCoor, tuple) and len(xyCoor) != 2: 
             raise ValueError("Wrong number of coordinate dimensions")
 
         if np.isnan(xyCoor[0]) and np.isnan(xyCoor[1]):
@@ -736,7 +737,7 @@ class TobiiHelper:
             drawStim = self.ada2PsychoPix(tuple(curPos))
             
             # draw gaze position only if found
-            if drawStim[0] is not self.win.getSizePix()[0]: 
+            if drawStim[0] != self.win.getSizePix()[0]: 
                 gazeStim.pos = drawStim
                 gazeStim.draw()
                 
@@ -1077,7 +1078,7 @@ class TobiiHelper:
         # clear screen
         calibWin.flip()   
         # print feedback
-        print "Computing and applying calibration."
+        print("Computing and applying calibration.")
         # compute and apply calibration to get calibration result object    
         calibResult = self.calibration.compute_and_apply()        
         # return calibration result
@@ -1130,20 +1131,20 @@ class TobiiHelper:
                              "Aborting calibration.\n" +\
                              "Try running findTracker().")
         # check window attribute
-        if self.win is None:
+        if self.win == None:
             raise ValueError('No experimental monitor has been specified.\n' +\
                              'Try running setMonitor().')
                
         # create dictionary of calibration points
         # if nothing entered then default is nine
-        if numCalibPoints is None: 
+        if numCalibPoints == None: 
             pointList = [('1',(0.1, 0.1)), ('2',(0.5, 0.1)), ('3',(0.9, 0.1)), 
                          ('4',(0.1, 0.5)), ('5',(0.5, 0.5)), ('6',(0.9, 0.5)), 
                          ('7',(0.1, 0.9)), ('8',(0.5, 0.9)), ('9',(0.9, 0.9))]
-        elif numCalibPoints is 5:
+        elif numCalibPoints == 5:
             pointList = [('1',(0.1, 0.1)), ('2',(0.9, 0.1)), ('3',(0.5, 0.5)), 
                          ('4',(0.1, 0.9)), ('5',(0.9, 0.9))]
-        elif numCalibPoints is 9: 
+        elif numCalibPoints == 9: 
             pointList = [('1',(0.1, 0.1)), ('2',(0.5, 0.1)), ('3',(0.9, 0.1)), 
                          ('4',(0.1, 0.5)), ('5',(0.5, 0.5)), ('6',(0.9, 0.5)), 
                          ('7',(0.1, 0.9)), ('8',(0.5, 0.9)), ('9',(0.9, 0.9))]
@@ -1253,7 +1254,7 @@ class TobiiHelper:
             # Redo calibration for specific points if necessary 
             if not redoCalDict:  # if no points to redo
             # finish calibration
-                print "Calibration successful. Moving on to validation mode."
+                print("Calibration successful. Moving on to validation mode.")
                 calibMessage.text = ("Calibration was successful.\n\n" + \
                                      "Moving on to validation.")
                 calibMessage.draw()
@@ -1281,7 +1282,7 @@ class TobiiHelper:
                 
                 # iterate through list of redo points and remove data from calibration
                 for newPoint in redoCalDict.values():
-                    print newPoint
+                    print(newPoint)
                     self.calibration.discard_data(newPoint[0], newPoint[1])
     
                 # continue with calibration of remaining points
